@@ -1,11 +1,16 @@
 package com.android_gpsstatus.gpsstatus;
 
+import android.app.Service;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -14,8 +19,9 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
-public class GPSLocationListener implements LocationListener {
+public class GPSLocationListener extends Service implements LocationListener {
     private TextView statusTextView;
+    private TextView bearingTextView;
     private TextView accuracyTextView;
     private TextView latitudeTextView;
     private TextView longitudeTextView;
@@ -27,6 +33,7 @@ public class GPSLocationListener implements LocationListener {
 
     public GPSLocationListener(
             TextView statusTextView,
+            TextView bearingTextView,
             TextView accuracyTextView,
             TextView latitudeTextView,
             TextView longitudeTextView,
@@ -36,6 +43,7 @@ public class GPSLocationListener implements LocationListener {
             TextView addressTextView,
             Geocoder geocoder) {
         this.statusTextView = statusTextView;
+        this.bearingTextView = bearingTextView;
         this.accuracyTextView = accuracyTextView;
         this.latitudeTextView = latitudeTextView;
         this.longitudeTextView = longitudeTextView;
@@ -48,31 +56,36 @@ public class GPSLocationListener implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        if (location == null) {
+            return;
+        }
+
+        bearingTextView.setText(String.valueOf(location.getBearing()));
         latitudeTextView.setText(String.valueOf(location.getLatitude()));
         longitudeTextView.setText(String.valueOf(location.getLongitude()));
         altitudeTextView.setText(String.valueOf(location.getAltitude()));
         speedTextView.setText(String.valueOf((int)((location.getSpeed() * 3600) / 1000)) + " km/h");
-        timeTextView.setText(String.valueOf(new Timestamp(new Date().getTime())));
+        timeTextView.setText(String.valueOf(new Timestamp(location.getTime())));
         addressTextView.setText(getAddress(location.getLatitude(), location.getLongitude()));
-        accuracyTextView.setText(String.valueOf(location.getAccuracy()));
+        accuracyTextView.setText(String.valueOf(location.getAccuracy()) + " m");
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.i("Status", "Status changed.");
         Log.i("Status", "Status: " + status);
-        Log.i("Status", "Satellite: " + GpsStatus.GPS_EVENT_SATELLITE_STATUS);
+        Log.i("Status", "Provider: " + provider);
         statusTextView.setText(String.valueOf(status));
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        Log.i("Provider", "Provider enabled.");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        Log.i("Provider", "Provider disabled");
     }
 
     public String getAddress(double lat, double lon) {
@@ -97,5 +110,11 @@ public class GPSLocationListener implements LocationListener {
         }
 
         return ret;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }
