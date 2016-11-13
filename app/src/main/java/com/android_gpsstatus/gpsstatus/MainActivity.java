@@ -4,20 +4,33 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
-    private LocationListener locationListener;
+    private GPSLocationListener locationListener;
+
+    public void goToMapActivity(View view) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putFloat("latitude", locationListener.getLatitude());
+        bundle.putFloat("longitude", locationListener.getLongitude());
+        intent.putExtras(bundle);
+
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,38 +38,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         locationListener = new GPSLocationListener(
-                (TextView)findViewById(R.id.status_text_view),
-                (TextView)findViewById(R.id.bearing_text_view),
-                (TextView)findViewById(R.id.accuracy_text_view),
-                (TextView)findViewById(R.id.latitude_text_view),
-                (TextView)findViewById(R.id.longitude_text_view),
-                (TextView)findViewById(R.id.altitude_text_view),
-                (TextView)findViewById(R.id.speed_text_view),
-                (TextView)findViewById(R.id.time_text_view),
-                (TextView)findViewById(R.id.address_text_view),
+                (TextView) findViewById(R.id.status_text_view),
+                (TextView) findViewById(R.id.bearing_text_view),
+                (TextView) findViewById(R.id.accuracy_text_view),
+                (TextView) findViewById(R.id.latitude_text_view),
+                (TextView) findViewById(R.id.longitude_text_view),
+                (TextView) findViewById(R.id.altitude_text_view),
+                (TextView) findViewById(R.id.speed_text_view),
+                (TextView) findViewById(R.id.time_text_view),
+                (TextView) findViewById(R.id.address_text_view),
                 new Geocoder(this, Locale.getDefault())
         );
-        
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(locationManager.getBestProvider(getCriteria(), true), 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
         }
-    }
-
-    private Criteria getCriteria() {
-        Criteria criteria = new Criteria();
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setHorizontalAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setVerticalAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setSpeedRequired(true);
-        criteria.setAltitudeRequired(true);
-        criteria.setBearingRequired(true);
-        criteria.setCostAllowed(false);
-
-        return criteria;
     }
 
     private void buildAlertMessageNoGps() {

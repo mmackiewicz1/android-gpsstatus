@@ -31,6 +31,17 @@ public class GPSLocationListener extends Service implements LocationListener {
     private TextView addressTextView;
     private Geocoder geocoder;
 
+    private float latitude;
+    private float longitude;
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
     public GPSLocationListener(
             TextView statusTextView,
             TextView bearingTextView,
@@ -56,9 +67,14 @@ public class GPSLocationListener extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i("Location", "Location changed");
+
         if (location == null) {
             return;
         }
+
+        latitude = (float)location.getLatitude();
+        longitude = (float)location.getLongitude();
 
         bearingTextView.setText(String.valueOf(location.getBearing()));
         latitudeTextView.setText(String.valueOf(location.getLatitude()));

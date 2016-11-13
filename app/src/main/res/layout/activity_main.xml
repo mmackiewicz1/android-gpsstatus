@@ -252,6 +252,20 @@
                     android:id="@+id/address_text_view" />
             </LinearLayout>
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5pt">
+
+            <Button
+                android:text="Show on map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="goToMapActivity"/>
+
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
