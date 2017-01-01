@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -21,7 +22,6 @@ import java.util.List;
 
 public class GPSLocationListener extends Service implements LocationListener {
     private TextView statusTextView;
-    private TextView bearingTextView;
     private TextView accuracyTextView;
     private TextView latitudeTextView;
     private TextView longitudeTextView;
@@ -30,6 +30,7 @@ public class GPSLocationListener extends Service implements LocationListener {
     private TextView timeTextView;
     private TextView addressTextView;
     private Geocoder geocoder;
+    private ImageView imageView;
 
     private float latitude;
     private float longitude;
@@ -52,9 +53,9 @@ public class GPSLocationListener extends Service implements LocationListener {
             TextView speedTextView,
             TextView timeTextView,
             TextView addressTextView,
-            Geocoder geocoder) {
+            Geocoder geocoder,
+            ImageView imageView) {
         this.statusTextView = statusTextView;
-        this.bearingTextView = bearingTextView;
         this.accuracyTextView = accuracyTextView;
         this.latitudeTextView = latitudeTextView;
         this.longitudeTextView = longitudeTextView;
@@ -63,6 +64,7 @@ public class GPSLocationListener extends Service implements LocationListener {
         this.timeTextView = timeTextView;
         this.addressTextView = addressTextView;
         this.geocoder = geocoder;
+        this.imageView = imageView;
     }
 
     @Override
@@ -76,7 +78,6 @@ public class GPSLocationListener extends Service implements LocationListener {
         latitude = (float)location.getLatitude();
         longitude = (float)location.getLongitude();
 
-        bearingTextView.setText(String.valueOf(location.getBearing()));
         latitudeTextView.setText(String.valueOf(location.getLatitude()));
         longitudeTextView.setText(String.valueOf(location.getLongitude()));
         altitudeTextView.setText(String.valueOf(location.getAltitude()));
@@ -84,6 +85,8 @@ public class GPSLocationListener extends Service implements LocationListener {
         timeTextView.setText(String.valueOf(new Timestamp(location.getTime())));
         addressTextView.setText(getAddress(location.getLatitude(), location.getLongitude()));
         accuracyTextView.setText(String.valueOf(location.getAccuracy()) + " m");
+
+        imageView.setRotation(location.getBearing());
     }
 
     @Override

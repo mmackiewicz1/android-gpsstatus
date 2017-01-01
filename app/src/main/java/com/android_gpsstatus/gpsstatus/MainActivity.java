@@ -4,16 +4,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.location.Geocoder;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -21,6 +19,11 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private GPSLocationListener locationListener;
+    private ImageView imageView;
+    private SensorManager sensorManager;
+    private SensorListener sensorListener;
+    private Sensor mAccelerometer;
+    private Sensor mField;
 
     public void goToMapActivity(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
@@ -36,10 +39,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        imageView = (ImageView)findViewById(R.id.compassImageView);
+        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         locationListener = new GPSLocationListener(
                 (TextView) findViewById(R.id.status_text_view),
-                (TextView) findViewById(R.id.bearing_text_view),
+                (TextView) findViewById(R.id.rotation_text_view),
                 (TextView) findViewById(R.id.accuracy_text_view),
                 (TextView) findViewById(R.id.latitude_text_view),
                 (TextView) findViewById(R.id.longitude_text_view),
@@ -47,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
                 (TextView) findViewById(R.id.speed_text_view),
                 (TextView) findViewById(R.id.time_text_view),
                 (TextView) findViewById(R.id.address_text_view),
-                new Geocoder(this, Locale.getDefault())
+                new Geocoder(this, Locale.getDefault()),
+                imageView
         );
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -56,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
         }
+
+        sensorListener = new SensorListener(imageView, (TextView) findViewById(R.id.rotation_text_view));
     }
 
     private void buildAlertMessageNoGps() {
@@ -74,5 +84,16 @@ public class MainActivity extends AppCompatActivity {
                 });
         final AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(sensorListener, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(sensorListener, mField, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(sensorListener);
     }
 }
