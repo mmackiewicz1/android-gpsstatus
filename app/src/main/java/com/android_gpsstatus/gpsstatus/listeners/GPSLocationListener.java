@@ -1,4 +1,4 @@
-package com.android_gpsstatus.gpsstatus;
+package com.android_gpsstatus.gpsstatus.listeners;
 
 import android.app.Service;
 import android.content.Intent;
@@ -45,7 +45,6 @@ public class GPSLocationListener extends Service implements LocationListener {
 
     public GPSLocationListener(
             TextView statusTextView,
-            TextView bearingTextView,
             TextView accuracyTextView,
             TextView latitudeTextView,
             TextView longitudeTextView,
@@ -121,7 +120,7 @@ public class GPSLocationListener extends Service implements LocationListener {
                 strReturnedAddress.append(returnedAddress.getCountryName()).append("\n");
                 ret = strReturnedAddress.toString();
             } else {
-                ret = "No Address returned!";
+                ret = "Brak zwróconego adresu!";
             }
         } catch (IOException e) {
             Log.e("Geocoder", e.getMessage());

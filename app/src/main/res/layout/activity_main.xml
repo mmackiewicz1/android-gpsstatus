@@ -61,7 +61,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Rotation: "
+                    android:text="Obrót: "
                     android:gravity="top"
                     android:layout_gravity="center"
                     android:layout_weight=".4"
@@ -110,7 +110,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Accuracy: "
+                    android:text="Dokładność: "
                     android:gravity="top"
                     android:layout_gravity="center"
                     android:layout_weight=".4"
@@ -135,7 +135,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Latitude: "
+                    android:text="Szerokość: "
                     android:layout_gravity="center"
                     android:layout_weight=".4"
                     android:textSize="7pt"/>
@@ -159,7 +159,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Longitude: "
+                    android:text="Długość: "
                     android:layout_gravity="center"
                     android:layout_weight=".4"
                     android:textSize="7pt"/>
@@ -183,7 +183,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Altitude: "
+                    android:text="Wysokość: "
                     android:layout_gravity="center"
                     android:layout_weight=".4"
                     android:textSize="7pt"/>
@@ -207,7 +207,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Speed: "
+                    android:text="Prędkość: "
                     android:layout_gravity="center"
                     android:layout_weight=".4"
                     android:textSize="7pt"/>
@@ -231,7 +231,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Time: "
+                    android:text="Czas: "
                     android:layout_gravity="center"
                     android:layout_weight=".4"
                     android:textSize="7pt"/>
@@ -255,7 +255,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Address: "
+                    android:text="Addres: "
                     android:gravity="top"
                     android:layout_gravity="center"
                     android:layout_weight=".4"
@@ -269,20 +269,31 @@
                     android:layout_weight=".6"
                     android:textSize="7pt"
                     android:id="@+id/address_text_view" />
+
             </LinearLayout>
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="5pt">
-
-            <Button
-                android:text="Show on map"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="goToMapActivity"/>
+                android:layout_height="match_parent">
 
+                <Button
+                    android:text="Pokaż na mapie"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="goToMapActivity"/>
+
+                <Button
+                    android:text="Zapisz współrzędne"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="saveCoordinates"/>
+
+                <Button
+                    android:text="Pokaż zapisane współrzędne"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="goToCoordinatesActivity"/>
             </LinearLayout>
 
         </LinearLayout>

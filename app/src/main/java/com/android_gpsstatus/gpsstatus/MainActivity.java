@@ -10,20 +10,27 @@ import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android_gpsstatus.gpsstatus.dao.data_sources.CoordinatesDataSource;
+import com.android_gpsstatus.gpsstatus.dao.model.Coordinates;
+import com.android_gpsstatus.gpsstatus.listeners.GPSLocationListener;
+import com.android_gpsstatus.gpsstatus.listeners.SensorListener;
+
 import java.util.Locale;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-    private LocationManager locationManager;
     private GPSLocationListener locationListener;
-    private ImageView imageView;
     private SensorManager sensorManager;
     private SensorListener sensorListener;
-    private Sensor mAccelerometer;
-    private Sensor mField;
+    private Sensor accelerometer;
+    private Sensor field;
+    private CoordinatesDataSource coordinatesDataSource;
 
     public void goToMapActivity(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
@@ -35,18 +42,54 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void goToCoordinatesActivity(View view) {
+        startActivity(new Intent(this, CoordinatesActivity.class));
+    }
+
+    public void saveCoordinates(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Nazwij współrzędną");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        builder.setView(input);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                coordinatesDataSource.open();
+                coordinatesDataSource.createCoordinates(new Coordinates(
+                        input.getText().toString(),
+                        Double.parseDouble(((TextView)findViewById(R.id.latitude_text_view)).getText().toString()),
+                        Double.parseDouble(((TextView)findViewById(R.id.longitude_text_view)).getText().toString())
+                ));
+
+                coordinatesDataSource.close();
+            }
+        });
+        builder.setNegativeButton("Anuluj", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+        coordinatesDataSource.close();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imageView = (ImageView)findViewById(R.id.compassImageView);
+        ImageView imageView = (ImageView)findViewById(R.id.compassImageView);
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        field = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        coordinatesDataSource = new CoordinatesDataSource(this);
 
         locationListener = new GPSLocationListener(
                 (TextView) findViewById(R.id.status_text_view),
-                (TextView) findViewById(R.id.rotation_text_view),
                 (TextView) findViewById(R.id.accuracy_text_view),
                 (TextView) findViewById(R.id.latitude_text_view),
                 (TextView) findViewById(R.id.longitude_text_view),
@@ -58,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 imageView
         );
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -70,14 +113,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+        builder.setMessage("Twój GPS jest wyłączony. Czy chcesz go włączyć?")
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Tak", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Nie", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
                     }
@@ -88,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(sensorListener, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(sensorListener, mField, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(sensorListener, field, SensorManager.SENSOR_DELAY_UI);
     }
 
     protected void onPause() {

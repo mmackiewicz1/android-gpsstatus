@@ -1,4 +1,4 @@
-package com.android_gpsstatus.gpsstatus;
+package com.android_gpsstatus.gpsstatus.listeners;
 
 
 import static android.hardware.Sensor.TYPE_ACCELEROMETER;
