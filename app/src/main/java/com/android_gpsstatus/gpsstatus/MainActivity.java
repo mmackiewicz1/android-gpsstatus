@@ -22,7 +22,6 @@ import com.android_gpsstatus.gpsstatus.listeners.GPSLocationListener;
 import com.android_gpsstatus.gpsstatus.listeners.SensorListener;
 
 import java.util.Locale;
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private GPSLocationListener locationListener;

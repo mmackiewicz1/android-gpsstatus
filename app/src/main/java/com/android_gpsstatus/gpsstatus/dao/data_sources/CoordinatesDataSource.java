@@ -47,8 +47,7 @@ public class CoordinatesDataSource {
         return newCoordinates;
     }
 
-    public void deleteCoordinates(Coordinates coordinates) {
-        long id = coordinates.getId();
+    public void deleteCoordinates(long id) {
         System.out.println("Coordinates deleted with id: " + id);
         sqLiteDatabase.delete(SQLiteHelper.COORDINATES_TABLE, SQLiteHelper.ID_COLUMN + " = " + id, null);
     }
