@@ -45,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, CoordinatesActivity.class));
     }
 
+    public void goToTrackingActivity(View view) {
+        startActivity(new Intent(this, TrackingActivity.class));
+    }
+
     public void saveCoordinates(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Nazwij współrzędną");
@@ -81,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImageView imageView = (ImageView)findViewById(R.id.compassImageView);
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         field = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -96,8 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 (TextView) findViewById(R.id.speed_text_view),
                 (TextView) findViewById(R.id.time_text_view),
                 (TextView) findViewById(R.id.address_text_view),
-                new Geocoder(this, Locale.getDefault()),
-                imageView
+                new Geocoder(this, Locale.getDefault())
         );
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             buildAlertMessageNoGps();
         }
 
-        sensorListener = new SensorListener(imageView, (TextView) findViewById(R.id.rotation_text_view));
+        sensorListener = new SensorListener((ImageView)findViewById(R.id.compassImageView), (TextView) findViewById(R.id.rotation_text_view));
     }
 
     private void buildAlertMessageNoGps() {

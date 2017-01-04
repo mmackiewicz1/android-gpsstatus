@@ -294,6 +294,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="goToCoordinatesActivity"/>
+
+                <Button
+                    android:text="Tryb nawigacji"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="goToTrackingActivity"/>
             </LinearLayout>
 
         </LinearLayout>

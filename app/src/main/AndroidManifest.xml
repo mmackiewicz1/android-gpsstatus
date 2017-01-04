@@ -36,6 +36,8 @@
             android:label="@string/title_activity_maps"/>
         <activity android:name=".CoordinatesActivity">
         </activity>
+        <activity android:name=".TrackingActivity">
+        </activity>
     </application>
 
 </manifest>

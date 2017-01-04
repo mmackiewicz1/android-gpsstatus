@@ -46,7 +46,6 @@ public class SensorListener implements SensorEventListener {
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     private void updateDirection() {

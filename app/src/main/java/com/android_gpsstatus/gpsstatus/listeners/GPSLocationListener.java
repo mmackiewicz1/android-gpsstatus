@@ -4,20 +4,16 @@ import android.app.Service;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.GpsSatellite;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 public class GPSLocationListener extends Service implements LocationListener {
@@ -30,7 +26,6 @@ public class GPSLocationListener extends Service implements LocationListener {
     private TextView timeTextView;
     private TextView addressTextView;
     private Geocoder geocoder;
-    private ImageView imageView;
 
     private float latitude;
     private float longitude;
@@ -52,8 +47,7 @@ public class GPSLocationListener extends Service implements LocationListener {
             TextView speedTextView,
             TextView timeTextView,
             TextView addressTextView,
-            Geocoder geocoder,
-            ImageView imageView) {
+            Geocoder geocoder) {
         this.statusTextView = statusTextView;
         this.accuracyTextView = accuracyTextView;
         this.latitudeTextView = latitudeTextView;
@@ -63,7 +57,6 @@ public class GPSLocationListener extends Service implements LocationListener {
         this.timeTextView = timeTextView;
         this.addressTextView = addressTextView;
         this.geocoder = geocoder;
-        this.imageView = imageView;
     }
 
     @Override
@@ -84,8 +77,6 @@ public class GPSLocationListener extends Service implements LocationListener {
         timeTextView.setText(String.valueOf(new Timestamp(location.getTime())));
         addressTextView.setText(getAddress(location.getLatitude(), location.getLongitude()));
         accuracyTextView.setText(String.valueOf(location.getAccuracy()) + " m");
-
-        imageView.setRotation(location.getBearing());
     }
 
     @Override
