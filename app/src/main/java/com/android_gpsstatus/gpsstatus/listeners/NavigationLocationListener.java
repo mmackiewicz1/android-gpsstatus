@@ -1,7 +1,16 @@
 package com.android_gpsstatus.gpsstatus.listeners;
 
+import static android.hardware.Sensor.TYPE_ACCELEROMETER;
+import static android.hardware.Sensor.TYPE_MAGNETIC_FIELD;
+import static android.hardware.SensorManager.AXIS_X;
+import static android.hardware.SensorManager.AXIS_Z;
+
 import android.app.Service;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -10,15 +19,44 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.ImageView;
 
-public class NavigationLocationListener extends Service implements LocationListener {
+public class NavigationLocationListener extends Service implements LocationListener, SensorEventListener {
+    private static final int ROTATION_FIXTURE = 180;
+
     private ImageView imageView;
     private double destinationLatitude;
     private double destinationLongitude;
+    private double locationRotation = 0;
+    private float[] gravityDataArray;
+    private float[] magneticDataArray;
 
     public NavigationLocationListener(ImageView imageView, double destinationLatitude, double destinationLongitude) {
         this.imageView = imageView;
         this.destinationLatitude = destinationLatitude;
         this.destinationLongitude = destinationLongitude;
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.i("Tag", "Sensor event invoked");
+        switch(event.sensor.getType()) {
+            case TYPE_ACCELEROMETER:
+                gravityDataArray = event.values.clone();
+                break;
+            case TYPE_MAGNETIC_FIELD:
+                magneticDataArray = event.values.clone();
+                break;
+            default:
+                return;
+        }
+
+        if (gravityDataArray != null && magneticDataArray != null) {
+            updateDirection();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
     @Nullable
@@ -35,7 +73,7 @@ public class NavigationLocationListener extends Service implements LocationListe
             return;
         }
 
-        setImageRotation(location);
+        setLocationRotation(location);
     }
 
     @Override
@@ -53,12 +91,32 @@ public class NavigationLocationListener extends Service implements LocationListe
         Log.i("Provider", "Provider disabled");
     }
 
-    private void setImageRotation(Location location){
-        double longitudeDistance = destinationLongitude - location.getLongitude();
-        double rotation = Math.toDegrees(Math.atan2(Math.sin(longitudeDistance) * Math.cos(destinationLatitude),
-                Math.cos(location.getLatitude()) * Math.sin(destinationLatitude) - Math.sin(location.getLatitude())*Math.cos(destinationLatitude)*Math.cos(longitudeDistance)));
-        rotation = (360 - ((rotation + 360) % 360));
+    private void setLocationRotation(Location location){
+        double longitudeDifference = Math.toRadians(location.getLongitude() - destinationLongitude);
+        double currentLatitudeRadians = Math.toRadians(location.getLatitude());
+        double destinationLatitudeRadians = Math.toRadians(destinationLatitude);
+        locationRotation = (Math.toDegrees(Math.atan2(
+                Math.sin(longitudeDifference) * Math.cos(currentLatitudeRadians),
+                Math.cos(destinationLatitudeRadians) * Math.sin(currentLatitudeRadians) - Math.sin(destinationLatitudeRadians) * Math.cos(currentLatitudeRadians) * Math.cos(longitudeDifference)
+        )) + 360) % 360;
+    }
 
-        imageView.setRotation((float) rotation);
+    private void updateDirection() {
+        Log.i("Tag", "Updating rotation");
+        float[] temporaryArray = new float[9];
+        SensorManager.getRotationMatrix(temporaryArray, null, gravityDataArray, magneticDataArray);
+
+        float[] rotationArray = new float[9];
+        SensorManager.remapCoordinateSystem(temporaryArray, AXIS_X, AXIS_Z, rotationArray);
+
+        float[] computedValues = new float[3];
+        SensorManager.getOrientation(rotationArray, computedValues);
+
+        for (int i = 0; i < computedValues.length; i++) {
+            Double degrees = (computedValues[i] * ROTATION_FIXTURE) / Math.PI;
+            computedValues[i] = degrees.floatValue();
+        }
+
+        imageView.setRotation(((float)locationRotation + computedValues[0]) % 360);
     }
 }
